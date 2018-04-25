@@ -1,0 +1,19 @@
+# Define file path
+- name: Set remote file path here
+  set_fact: remote_file_path=/etc/hosts
+
+# Create a blank file
+- name: Create a new file
+  file: path="{{ remote_file_path }}" state=touch
+
+# Check remote file
+- stat: path="{{ remote_file_path }}"
+  register: file_path
+
+# Write file content in file_content variable
+- set_fact: file_content="192.168.0.84 node-minion-1\n192.168.0.88 node-minion-2\n"
+
+# If file exist then copy content in remote file.
+- copy: content="{{ file_content }}" dest="{{ remote_file_path }}"
+  when: file_path.stat.exists == true
+

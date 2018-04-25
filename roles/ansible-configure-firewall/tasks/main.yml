@@ -1,0 +1,22 @@
+- name: ensure that firewalld is started and enable at boot
+  service: name=firewalld enabled=yes state=started
+
+- name: Allow http/https
+  command: firewall-cmd --zone=dmz --permanent --add-service=http --add-service=https
+
+- name: Open the required ports
+  command: firewall-cmd --zone=public --permanent --add-port="{{ item }}"/tcp
+
+  with_items:
+    - 50090
+    - 50105
+    - 50075
+    - 50070
+    - 50475
+    - 50470
+    - 8032
+    - 8030
+    - 8088
+    - 8090
+    - 8031
+    - 8033

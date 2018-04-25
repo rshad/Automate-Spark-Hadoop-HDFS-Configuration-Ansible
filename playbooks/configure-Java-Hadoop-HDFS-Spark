@@ -1,0 +1,7 @@
+---
+- hosts: webservers
+  roles:
+    - ansible-configure-hosts-file
+    - ansible-configure-firewall
+    - ansible-disable-selinux
+    - ansible-install-java
