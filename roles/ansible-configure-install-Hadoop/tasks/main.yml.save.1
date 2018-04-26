@@ -1,0 +1,23 @@
+# first of all, we create hadoop user, so this user will be the one used to configure Hadoopa and HDFS
+#- name: creating hadoop user
+#  user:
+#    name: hadoop
+#    password: "{{ hadoop }}"
+#    state: present
+#    shell: /bin/bash    
+#    system: no
+#    createhome: yes
+#    home: /home/hadoop
+
+
+# Note:  We do not need to donwload the java package from internet, we have our own already downloaded.
+- name: Extracting Hadoop package
+  
+  unarchive:
+    src: "{{ hadoop_package_file }}"
+    dest: "{{ download_folder }}"
+    creates: "{{ to_create_folder }}"
+
+- name: Fix ownership
+  file: state=directory path={{ to_create_folder }} owner=root group=root recurse=yes
+

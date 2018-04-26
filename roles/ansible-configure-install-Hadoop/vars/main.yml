@@ -1,0 +1,13 @@
+# password of the user hadoop
+# this password was generated, using the following sentece:
+# python -c "from passlib.hash import sha512_crypt;
+#            import getpass;
+#             
+#            print(sha512_crypt.using(rounds=5000).hash(getpass.getpass()))"
+hadoop: $6$32kWFxU21rSuBfz5$eSAi2zLEMVoVvLTt5gNP9ZVD8KJZ000f/eH/zTxclGMp.sO7zKfL/3A3PCoVQ6AXSMCYX.qMBlwj39ITnop6c1
+
+# variables for the task " Extracting Hadoop package 
+download_folder: /opt/
+hadoop_package_file: /opt/required-packages/hadoop-2.6.5.tar.gz
+hadoop_folder_path_name_old: /opt/hadoop-2.6.5
+hadoop_folder_name_new: hadoop
