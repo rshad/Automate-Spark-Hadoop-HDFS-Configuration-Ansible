@@ -11,18 +11,39 @@
 
 
 # Note:  We do not need to donwload the java package from internet, we have our own already downloaded.
-- name: Extracting Hadoop package
+#- name: Extracting Hadoop package
+#
+#  unarchive:
+#    src: "{{ hadoop_package_file }}"
+#    dest: "{{ download_folder }}"
+#  when: inventory_hostname in groups['masters']
+#
+#- name: "Changing the hadoop folder name from {{ hadoop_folder_path_name_old }} to {{ download_folder }}/{{ hadoop_folder_name_new }}"
+#
+#  command: "mv {{ hadoop_folder_path_name_old }}  {{ download_folder }}/{{ hadoop_folder_name_new }}"
+#  when: inventory_hostname in groups['masters']
+#
+#- name: Copying hadoop/ folder to the slaves hosts ...
+#  synchronize:
+#    src: "{{ download_folder }}/{{ hadoop_folder_name_new }}"
+#    dest: "{{ download_folder }}/"
+#  when: inventory_hostname in groups['slaves']  
 
-  unarchive:
-    src: "{{ hadoop_package_file }}"
-    dest: "{{ download_folder }}"
-  when: inventory_hostname in groups['masters']
+# Setting the required path for hadoop ...
+- name: Writing Hadoop Path's into /home/hadoop/.bashrc ...
+  lineinfile:
+    path: /home/hadoop/.bashrc
+    line: "{{ item }}"
 
-- name: "Changing the hadoop folder name from {{ hadoop_folder_path_name_old }} to {{ download_folder }}/{{ hadoop_folder_name_new }}"
+  become: yes
+  become_user: hadoop
 
-  command: "mv {{ hadoop_folder_path_name_old }}  {{ download_folder }}/{{ hadoop_folder_name_new }}"
-  when: inventory_hostname in groups['masters']
-
-# - name: Copying hadoop/ folder to the slaves hosts ...
-  
-
+  with_items: 
+    - export HADOOP_PREFIX=/opt/hadoop
+    - export HADOOP_HOME=$HADOOP_PREFIX
+    - export HADOOP_COMMON_HOME=$HADOOP_PREFIX
+    - export HADOOP_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
+    - export HADOOP_HDFS_HOME=$HADOOP_PREFIX
+    - export HADOOP_MAPRED_HOME=$HADOOP_PREFIX
+    - export HADOOP_YARN_HOME=$HADOOP_PREFIX
+    - export PATH=$PATH:$HADOOP_PREFIX/sbin:$HADOOP_PREFIX/bin
