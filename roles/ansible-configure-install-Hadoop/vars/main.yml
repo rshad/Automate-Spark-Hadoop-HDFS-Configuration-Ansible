@@ -11,3 +11,14 @@ download_folder: /opt/
 hadoop_package_file: /opt/required-packages/hadoop-2.6.5.tar.gz
 hadoop_folder_path_name_old: /opt/hadoop-2.6.5
 hadoop_folder_name_new: hadoop
+
+
+# variables for /opt/hadoop/etc/hadoop/hdfs-site.xml 
+name_property_1: dfs.replication
+value_property_1: 3
+name_property_2: dfs.permissions
+value_property_2: false
+name_property_3: dfs.datanode.data.dir
+value_property_3: /home/hadoop/datanode
+
+

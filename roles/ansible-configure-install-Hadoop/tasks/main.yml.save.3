@@ -89,11 +89,10 @@
 #    - chown hadoop /home/hadoop/datanode/
 #    - chgrp hadoop /home/hadoop/datanode/
 
-- name: changing the name of the old template of /opt/hadoop/etc/hadoop/hdfs-site.xml ... to .original
-  command: mv /opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml.original
 
+- name: Modifying the file /opt/hadoop/etc/hadoop/hdfs-site.xml  ...
+  xml:
+    path: /opt/hadoop/etc/hadoop/hdfs-site.xml
+    xpath: /configuration
+    
 
-- name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content ... 
-  template:
-    src: ../templates/template-hdfs-site-xml.j2
-    dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
