@@ -1,4 +1,4 @@
 download_folder: /opt/
 to_create_folder: jdk1.8.0_161
 java_name: "{{download_folder}}/{{ to_create_folder }}"
-java_archive: "{{download_folder}}/jdk-8u161-linux-x64.tar.gz"
+java_archive: "{{download_folder}}/required-packages/jdk-8u161-linux-x64.tar.gz"

@@ -1,5 +1,6 @@
 ---
 - hosts: webservers
+#- hosts: masters
 #  become: yes
   roles:
 #    - ansible-configure-hosts-file
