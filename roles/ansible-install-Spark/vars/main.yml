@@ -1,0 +1,4 @@
+download_folder: /usr/local
+spark_package_file: /opt/required-packages/spark-2.3.0-bin-hadoop2.7.tgz
+spark_folder_path_name_old: "{{ download_folder }}/spark-2.3.0-bin-hadoop2.7"
+spark_folder_name_new: spark

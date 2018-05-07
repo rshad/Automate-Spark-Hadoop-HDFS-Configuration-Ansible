@@ -20,3 +20,6 @@
     - 8090
     - 8031
     - 8033
+
+- name: Reloading firewalld to apply the changes ...
+  command: firewall-cmd --reload

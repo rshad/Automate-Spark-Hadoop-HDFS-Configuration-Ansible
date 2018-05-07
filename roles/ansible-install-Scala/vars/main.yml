@@ -1,0 +1,5 @@
+download_folder: /usr/local
+scala_package_file: /opt/required-packages/scala-2.12.5.tgz
+scala_folder_path_name_old: "{{ download_folder }}/scala-2.12.5"
+scala_folder_name_new: scala
+

@@ -1,0 +1,15 @@
+# -------------------------------- Installing Scala ------------------------------------------ #
+
+# Note:  We do not need to donwload the scala package from internet, we have our own already downloaded.
+- name: Extracting Scala package
+
+  unarchive:
+    src: "{{ scala_package_file }}"
+    dest: "{{ download_folder }}"
+  when: inventory_hostname in groups['webservers']
+
+- name: "Changing the spark folder name from {{ scala_folder_path_name_old }} to {{ download_folder }}/{{ scala_folder_name_new }}"
+
+  command: "mv {{ scala_folder_path_name_old }} {{ download_folder }}/{{ scala_folder_name_new }}"
+  when: inventory_hostname in groups['webservers']
+

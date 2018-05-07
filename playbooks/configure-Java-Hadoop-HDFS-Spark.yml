@@ -7,5 +7,6 @@
 #    - ansible-configure-firewall
 #    - ansible-disable-selinux
 #    - ansible-install-java
-    - ansible-configure-install-Hadoop
-
+#    - ansible-configure-install-Hadoop
+#    - ansible-install-Spark
+     - ansible-install-Scala
