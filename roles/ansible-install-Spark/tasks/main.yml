@@ -51,16 +51,26 @@
 #  command: "cp {{spark_home.stdout}}/conf/spark-env.sh.template {{spark_home.stdout}}/conf/spark-env.sh"
 #  become: yes
 
-- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
+#- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
+#  lineinfile:
+#    path: "{{ spark_home.stdout }}/conf/spark-env.sh"
+#    line: "{{ item }}"
+
+#  with_items:
+#    - export JAVA_HOME=/opt/jdk1.8.0_161
+#    - "export SPARK_PUBLIC_DNS={{ ansible_default_ipv4.address  }}"
+#    - export SPARK_WORKER_CORES=4   
+#    - export PYSPARK_PYTHON=/bin/python3.6
+#    - export PYSPARK_DRIVER_PYTHON=python3
+#  when: inventory_hostname in groups['webservers']
+ 
+- name: "Adding slaves hosts names to {{ spark_home.stdout }}/conf/slaves ..."
   lineinfile:
-    path: "{{ spark_home.stdout }}/conf/spark-env.sh"
+    path: "{{ spark_home.stdout }}/conf/slaves"
     line: "{{ item }}"
 
   with_items:
-    - export JAVA_HOME=/opt/jdk1.8.0_161
-    - "export SPARK_PUBLIC_DNS={{ ansible_default_ipv4.address  }}"
-    - export SPARK_WORKER_CORES=4   
-    - export PYSPARK_PYTHON=/bin/python3.6
-    - export PYSPARK_DRIVER_PYTHON=python3
-  when: inventory_hostname in groups['webservers']
- 
+    - central-machine
+    - node-minion-1
+    - node-minion-2 
+  when: inventory_hostname in groups['masters']
