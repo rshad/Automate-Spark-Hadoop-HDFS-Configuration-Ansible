@@ -1,0 +1,7 @@
+ansible-playbook 2.5.0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /bin/ansible-playbook
+  python version = 2.7.14 (default, Mar 14 2018, 13:36:31) [GCC 7.3.1 20180303 (Red Hat 7.3.1-5)]
+Using /etc/ansible/ansible.cfg as config file

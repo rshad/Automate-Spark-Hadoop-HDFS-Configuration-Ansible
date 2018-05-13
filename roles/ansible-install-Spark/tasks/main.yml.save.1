@@ -1,0 +1,54 @@
+# -------------------------------- Installing Spark ------------------------------------------ #
+
+# Note:  We do not need to donwload the spark package from internet, we have our own already downloaded.
+#- name: Extracting Spark package
+
+#  unarchive:
+#    src: "{{ spark_package_file }}"
+#    dest: "{{ download_folder }}"
+#  when: inventory_hostname in groups['webservers']
+
+#- name: "Changing the spark folder name from {{ spark_folder_path_name_old }} to {{ download_folder }}/{{ spark_folder_name_new }}"
+
+#  command: "mv {{ spark_folder_path_name_old }} {{ download_folder }}/{{ spark_folder_name_new }}"
+#  when: inventory_hostname in groups['webservers']
+
+
+- name: Setting Spark bin Home ...
+  shell: echo 'export PATH=$PATH:/usr/local/spark/bin/' >> $HOME/.bash_profile 
+
+- name: Setting Spark Home ...
+  shell: echo 'export SPARK_HOME=/usr/local/spark/' >> $HOME/.bash_profile
+
+- name: Setting Scala bin Home ...
+  shell: echo 'export PATH=$PATH:/usr/local/scala/bin/' >> $HOME/.bash_profile 
+
+- name: Applying the changes ...
+  shell: source ~/.bash_profile
+ 
+- name: copying the spar-env template file
+  command: cp $SPARK_HOME/conf/spark-env.sh.template $SPARK_HOME/conf/spark-env.sh 
+
+- name: setting
+  lineinfile:
+    path: $SPARK_HOME/conf/spark-env.sh
+    line: "{{ item }}"
+
+  with_items:
+    - export JAVA_HOME=/opt/jdk1.8.0_161
+    - export SPARK_PUBLIC_DNS="{{ ansible_enp0s3.ipv4.address }}"
+    - export SPARK_WORKER_CORES=4
+  when: inventory_hostname in groups['masters']
+
+
+- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
+  lineinfile:
+    path: $SPARK_HOME/conf/spark-env.sh
+    line: "{{ item }}"
+
+  with_items:
+     - export JAVA_HOME=/opt/jdk1.8.0_161
+    - export SPARK_PUBLIC_DNS="{{ ansible_enp0s3.ipv4.address }}"
+    - export SPARK_WORKER_CORES=4   
+  when: inventory_hostname in groups['masters']
+ 
