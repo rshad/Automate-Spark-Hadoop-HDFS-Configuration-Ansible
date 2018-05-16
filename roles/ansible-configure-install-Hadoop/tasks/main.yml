@@ -144,4 +144,21 @@
 #    - net.ipv6.conf.all.disable_ipv6 = 1
 #    - net.ipv6.conf.default.disable_ipv6 = 1
 
+- name: Clearing HDFS logs, temporal files and old data on masters ...
+  command: "rm -rf {{ item }}"
+  with_items:
+    - /opt/hadoop/logs/*
+    - ~/datanode/*
+    - ~/namenode/*
+    - /tmp/hadoop-hadoop/*
+  become_user: hadoop
+  when: inventory_hostname in groups['masters']
 
+
+- name: Clearing HDFS logs, temporal files and old data on slaves ...
+  command: "rm -rf {{ item }}"
+  with_items:
+    - /opt/hadoop/logs/*
+    - ~/datanode/*
+  become_user: hadoop
+  when: inventory_hostname in groups['slavess']
