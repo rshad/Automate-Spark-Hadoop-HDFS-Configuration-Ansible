@@ -161,4 +161,4 @@
     - /opt/hadoop/logs/*
     - ~/datanode/*
   become_user: hadoop
-  when: inventory_hostname in groups['slavess']
+  when: inventory_hostname in groups['slaves']
