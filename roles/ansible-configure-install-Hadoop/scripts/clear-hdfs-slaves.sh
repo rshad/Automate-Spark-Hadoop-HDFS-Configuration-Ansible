@@ -9,4 +9,8 @@ do
      rm -rf $directory*
 done
 
-
+echo "Deleting HDFS and YARN processes ... "
+for pid in $(ps -ef | grep hadoop | grep -v grep | awk '{print $2}'); do
+    echo "Killing $pid ..."
+    kill "$pid"
+done
