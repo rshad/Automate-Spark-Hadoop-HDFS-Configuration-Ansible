@@ -8,7 +8,7 @@
 #    system: no
 #    createhome: yes
 #    home: /home/hadoop
-#  become: yes
+
 # -------------------------------- Installing Hadoop ------------------------------------------ #
 
 # Note:  We do not need to donwload the java package from internet, we have our own already downloaded.
@@ -18,20 +18,17 @@
 #    src: "{{ hadoop_package_file }}"
 #    dest: "{{ download_folder }}"
 #  when: inventory_hostname in groups['masters']
-#  become: yes
-  
+
 #- name: "Changing the hadoop folder name from {{ hadoop_folder_path_name_old }} to {{ download_folder }}/{{ hadoop_folder_name_new }}"
 
 #  command: "mv {{ hadoop_folder_path_name_old }}  {{ download_folder }}/{{ hadoop_folder_name_new }}"
 #  when: inventory_hostname in groups['masters']
-#  become: yes
 
 #- name: Copying hadoop/ folder to the slaves hosts ...
 #  synchronize:
 #    src: "{{ download_folder }}/{{ hadoop_folder_name_new }}"
 #    dest: "{{ download_folder }}/"
 #  when: inventory_hostname in groups['slaves']  
-#  become: yes
 
 # Setting the required path for hadoop ...
 #- name: Writing Hadoop Path's into /home/hadoop/.bashrc ...
@@ -39,9 +36,10 @@
 #    path: /home/hadoop/.bashrc
 #    line: "{{ item }}"
 
-#  with_items:
-#    - export JAVA_HOME=/opt/jdk1.8.0_161
-#    - export JRE_HOME=/opt/jdk1.8.0_161/jre 
+#  become: yes
+#  become_user: hadoop
+
+#  with_items: 
 #    - export HADOOP_PREFIX=/opt/hadoop
 #    - export HADOOP_HOME=$HADOOP_PREFIX
 #    - export HADOOP_COMMON_HOME=$HADOOP_PREFIX
@@ -49,49 +47,36 @@
 #    - export HADOOP_HDFS_HOME=$HADOOP_PREFIX
 #    - export HADOOP_MAPRED_HOME=$HADOOP_PREFIX
 #    - export HADOOP_YARN_HOME=$HADOOP_PREFIX
-#    - export PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin:$HADOOP_PREFIX/sbin:$HADOOP_PREFIX/bin
-
-#  become: yes
+#    - export PATH=$PATH:$HADOOP_PREFIX/sbin:$HADOOP_PREFIX/bin
 
 # Applying the changes
 #- name: applying the changes ...
-#  action: shell source /home/hadoop/.bashrc
+#  shell: source ~/.bashrc
 #  become: yes
-
-#- name: refreshing the terminal bash in order to refresh the environment variables
-#  shell: bash
-#  become: yes  
+#  become_user: hadoop
 
 # -------------------------------- Configuring Hadoop ------------------------------------------ #
 
 #- name: Installing lxml python library ...
-#  command: "{{ item }}"
-  
-#  with_items:
-#    - pip install --upgrade pip
-#    - pip install lxml
-#  become: yes
+#  command: pip install lxml
 
 #- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
 #  xml:
 #    path: /opt/hadoop/etc/hadoop/core-site.xml
 #    xpath: /configuration/property        
 #    value:
-#  become: yes
 
 #- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
 #  xml:
 #    path: /opt/hadoop/etc/hadoop/core-site.xml
 #    xpath: /configuration/property/name
 #    value: fs.defaultFS
-#  become: yes
 
 #- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
 #  xml:
 #    path: /opt/hadoop/etc/hadoop/core-site.xml
 #    xpath: /configuration/property/value
 #    value: hdfs://central-machine:9000/
-#  become: yes
 
 #- name: Creating the required folders for Hadoop ...
 #  command: "{{ item }}"
@@ -103,17 +88,14 @@
 #    - mkdir /home/hadoop/datanode
 #    - chown hadoop /home/hadoop/datanode/
 #    - chgrp hadoop /home/hadoop/datanode/
-#  become: yes
 
 #- name: changing the name of the old template of /opt/hadoop/etc/hadoop/hdfs-site.xml ... to .original
 #  command: cp /opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml.original
-#  become: yes
 
 #- name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content ... 
 #  template:
 #    src: ../templates/template-hdfs-site-xml.j2
 #    dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
-#  become: yes
 
 #- name: Creating namenode folder in the master ...
 #  command: "{{ item }}"
@@ -127,7 +109,7 @@
 #     - chgrp hadoop /home/hadoop/namenode/
 
 #  when: inventory_hostname in groups['masters']
-#  become: yes
+
 
 #- name: Creating the file /opt/hadoop/etc/hadoop/mapred-site.xml, using template ..
 
@@ -136,7 +118,7 @@
 #    dest: /opt/hadoop/etc/hadoop/mapred-site.xml  
 
 #  when: inventory_hostname in groups['masters']
-#  become: yes
+
 
 #- name: Adding the names of the hosts of the slaves including the master ...
 #  lineinfile:
@@ -144,18 +126,15 @@
 #    line: "{{ item }}" 
 
 #  become: yes
+#  become_user: hadoop
 
 #  with_items:
-#    - central-machine 
-#    - node-minion-1
+#    - central-machine
+#    - node-ninion-1
 #    - node-minion-2
-#    - node-minion-3
-#    - node-minion-4
-#    - node-minion-5
 
 #  when: inventory_hostname in groups['masters']
 
- 
 #- name: Modifying the file /etc/sysctl.conf  ...
 #  lineinfile:
 #    path: /etc/sysctl.conf
@@ -165,17 +144,34 @@
 #    - net.ipv6.conf.all.disable_ipv6 = 1
 #    - net.ipv6.conf.default.disable_ipv6 = 1
 
+
+#- name: adding Spark and Scala home ...
+#  lineinfile:
+#    path: ~/.bashrc
+#    line: "{{ item }}"
+
+#  with_items:
+#    - export PATH=$PATH:/opt/hadoop/bin
+#    - export PATH=$PATH:/opt/hadoop/sbin
+
 #  become: yes
+
+#  when: inventory_hostname in groups['webservers']
+
+#- name: source .bashrc in order to apply the changes
+#  action: shell source /root/.bashrc
+#  become: yes
+
+#  when: inventory_hostname in groups['webservers']
 
 - name: Clearing HDFS logs, temporal files and old data on masters ...
   script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-masters.sh
   when: inventory_hostname in groups['masters']
-  become: yes
 
 - name: Clearing HDFS logs, temporal files and old data on slaves ...
   script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-slaves.sh
   when: inventory_hostname in groups['slaves']
-  become: yes  
+  
 
 
   

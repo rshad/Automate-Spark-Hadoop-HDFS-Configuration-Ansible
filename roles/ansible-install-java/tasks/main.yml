@@ -6,30 +6,37 @@
     src: "{{java_archive}}"
     dest: "{{download_folder}}"
     creates: "{{ to_create_folder }}"
+  
+  become: yes
 
 - name: Fix ownership
   file: state=directory path={{ to_create_folder }} owner=root group=root recurse=yes
-
+  become: yes
 
 # Configuring the Java version 
 - name: create a symbolic link to java binary ...
   command: "alternatives --install /usr/bin/java java /opt/{{ to_create_folder }}/bin/java 2"
+  become: yes
 
 - name: configure the created symbolic link to java binary ...
   shell: yes '' | alternatives --config java    
+  become: yes
 
 - name: create a symbolic lin to jar binary ...
   command: "alternatives --install /usr/bin/jar jar /opt/{{ to_create_folder }}/bin/jar 2"
+  become: yes
 
 - name: create a symbolic lin to javac binary ...
   command: "alternatives --install /usr/bin/javac javac /opt/{{ to_create_folder }}/bin/javac 2"
+  become: yes
 
 - name: setting up the The symbolic link and slaves for link group name and the link group for jar
   command: "alternatives --set jar /opt/{{ to_create_folder }}/bin/jar"
+  become: yes
 
 - name: setting up the The symbolic link and slaves for link group name and the link group for javac
   command: "alternatives --set javac /opt/{{ to_create_folder }}/bin/javac"
-
+  become: yes
 
 # Setting JAVA_HOME and JRE_HOME the PATH variable
 - name: Insert a line at the end of a file.
@@ -41,18 +48,21 @@
     - export JAVA_HOME=/opt/"{{ to_create_folder }}"
     - export JRE_HOME=/opt/"{{ to_create_folder }}"/jre
     - export PATH=$PATH:/opt/"{{ to_create_folder }}"/bin:/opt/"{{ to_create_folder }}"/jre/bin
+  become: yes
 
 # In this task we use shell module to run source command becuase source is an internal command and not external, so we can't use command module.
 - name: applying the changes ...
   shell: source /etc/bashrc 
-
+  become: yes
 
 - name: detecting the changes ...
   command: echo $JAVA_HOME
   register: java_home
+  become: yes
 
 # Print the content of the register java_home
 - debug: msg="JAVA_HOME value -> {{ java_home.stdout }}"
+  become: yes
 
 - debug: msg="Error Output -> {{ java_home.stderr }}"
-    
+  become: yes    

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-declare -a slaves_directories=("/opt/hadoop/logs/" "/home/hadoop/datanode/" "/tmp/hadoop-hadoop/")
+declare -a slaves_directories=("/opt/hadoop/logs/" "/home/hadoop/datanode/" "/tmp/hadoop-hadoop/" "/tmp/hadoop-hadoop/dfs/name/" "/tmp/hadoop-hadoop/dfs/namesecondary/")
 
 echo "Deleting files in the following directories in [masters] ..."
 for directory in ${slaves_directories[@]}

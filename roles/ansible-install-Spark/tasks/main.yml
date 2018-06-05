@@ -8,31 +8,35 @@
 #    dest: "{{ download_folder }}"
 #  when: inventory_hostname in groups['webservers']
 
+#  become: yes
+
 #- name: "Changing the spark folder name from {{ spark_folder_path_name_old }} to {{ download_folder }}/{{ spark_folder_name_new }}"
 
 #  command: "mv {{ spark_folder_path_name_old }} {{ download_folder }}/{{ spark_folder_name_new }}"
 #  when: inventory_hostname in groups['webservers']
+#  become: yes
 
-#- name: adding Spark and Scala home ...
-#  lineinfile:
-#    path: ~/.bashrc
-#    line: "{{ item }}"
+- name: adding Spark and Scala home ...
+  lineinfile:
+    path: /root/.bashrc
+    line: "{{ item }}"
 
-#  with_items:
-#    - export PATH=$PATH:/usr/local/spark/bin/
-#    - export PATH=$PATH:/usr/local/scala/bin/
-#    - export SPARK_HOME=/usr/local/spark/
+  with_items:
+    - export PATH=$PATH:/usr/local/spark/bin/
+    - export PATH=$PATH:/usr/local/scala/bin/
+    - export SPARK_HOME=/usr/local/spark/
   
-#  become: yes
+  become: yes
 
-#  when: inventory_hostname in groups['masters']
+  when: inventory_hostname in groups['webservers']
    
-#- name: source .bashrc in order to apply the changes
-#  action: shell source /root/.bashrc
-#  become: yes
+- name: source .bashrc in order to apply the changes
+  action: shell source /root/.bashrc
+  become: yes
 
-#- name: refreshing the terminal bash in order to refresh the environment variables
-#  shell: bash  
+- name: refreshing the terminal bash in order to refresh the environment variables
+  shell: bash
+  become: yes  
 
 - name: detecting the changes ...
   command: echo $SPARK_HOME
@@ -47,30 +51,36 @@
 
 - debug: var=ansible_default_ipv4.address
 
-#- name: copying the spar-env template file
-#  command: "cp {{spark_home.stdout}}/conf/spark-env.sh.template {{spark_home.stdout}}/conf/spark-env.sh"
-#  become: yes
+- name: copying the spar-env template file
+  command: cp /usr/local/spark/conf/spark-env.sh.template /usr/local/spark/conf/spark-env.sh
+  become: yes  
 
-#- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
-#  lineinfile:
-#    path: "{{ spark_home.stdout }}/conf/spark-env.sh"
-#    line: "{{ item }}"
-
-#  with_items:
-#    - export JAVA_HOME=/opt/jdk1.8.0_161
-#    - "export SPARK_PUBLIC_DNS={{ ansible_default_ipv4.address  }}"
-#    - export SPARK_WORKER_CORES=4   
-#    - export PYSPARK_PYTHON=/bin/python3.6
-#    - export PYSPARK_DRIVER_PYTHON=python3
-#  when: inventory_hostname in groups['webservers']
- 
-- name: "Adding slaves hosts names to {{ spark_home.stdout }}/conf/slaves ..."
+- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
   lineinfile:
-    path: "{{ spark_home.stdout }}/conf/slaves"
+    path: /usr/local/spark/conf/spark-env.sh
+    line: "{{ item }}"
+
+  with_items:
+    - export JAVA_HOME=/opt/jdk1.8.0_161
+    - "export SPARK_PUBLIC_DNS={{ ansible_default_ipv4.address  }}"
+    - export SPARK_WORKER_CORES=4   
+    - export PYSPARK_PYTHON=/bin/python3.6
+    - export PYSPARK_DRIVER_PYTHON=python3
+  when: inventory_hostname in groups['webservers']
+  become: yes 
+
+- name: Adding slaves hosts names to /usr/local/spark/conf/slaves ...
+
+  lineinfile:
+    path: /usr/local/spark/conf/slaves
     line: "{{ item }}"
 
   with_items:
     - central-machine
     - node-minion-1
-    - node-minion-2 
+    - node-minion-2
+    - node-minion-3
+    - node-minion-4
+    - node-minion-5
   when: inventory_hostname in groups['masters']
+  become: yes

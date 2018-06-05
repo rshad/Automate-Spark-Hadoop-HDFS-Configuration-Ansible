@@ -19,15 +19,22 @@
 
 [webservers]
 192.168.0.79 
-192.168.0.84 
-192.168.0.88 
+#192.168.0.84 
+#192.168.0.88 
+192.168.0.87 ansible_python_interpreter=/usr/bin/python3
+192.168.0.94 ansible_python_interpreter=/usr/bin/python3
+192.168.0.77 ansible_python_interpreter=/usr/bin/python3
 
 [masters]
-192.168.0.79
+192.168.0.79 ansible_python_interpreter=/usr/bin/python3
 
 [slaves]
-192.168.0.84
-192.168.0.88
+#192.168.0.84
+#192.168.0.88
+192.168.0.87 ansible_python_interpreter=/usr/bin/python3
+192.168.0.94 ansible_python_interpreter=/usr/bin/python3
+192.168.0.77 ansible_python_interpreter=/usr/bin/python3
+
 
 ## alpha.example.org
 ## beta.example.org

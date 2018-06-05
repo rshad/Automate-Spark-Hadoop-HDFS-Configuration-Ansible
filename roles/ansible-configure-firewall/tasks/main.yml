@@ -1,8 +1,17 @@
+- name: install firewalld ...
+  dnf:
+    name: firewalld
+    state: latest
+
+  become: yes
+
 - name: ensure that firewalld is started and enable at boot
   service: name=firewalld enabled=yes state=started
+  become: yes
 
 - name: Allow http/https
   command: firewall-cmd --zone=dmz --permanent --add-service=http --add-service=https
+  become: yes
 
 - name: Open the required ports
   command: firewall-cmd --zone=public --permanent --add-port="{{ item }}"/tcp
@@ -20,6 +29,9 @@
     - 8090
     - 8031
     - 8033
+  
+  become: yes
 
 - name: Reloading firewalld to apply the changes ...
   command: firewall-cmd --reload
+  become: yes
