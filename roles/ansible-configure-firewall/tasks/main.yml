@@ -29,7 +29,7 @@
     - 8090
     - 8031
     - 8033
-  
+    - 4040  
   become: yes
 
 - name: Reloading firewalld to apply the changes ...

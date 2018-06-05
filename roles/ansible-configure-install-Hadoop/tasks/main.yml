@@ -64,96 +64,96 @@
 
 # -------------------------------- Configuring Hadoop ------------------------------------------ #
 
-#- name: Installing lxml python library ...
-#  command: "{{ item }}"
+- name: Installing lxml python library ...
+  command: "{{ item }}"
   
-#  with_items:
-#    - pip install --upgrade pip
-#    - pip install lxml
-#  become: yes
+  with_items:
+    - pip3 install --upgrade pip
+    - pip3 install lxml
+  become: yes
 
-#- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
-#  xml:
-#    path: /opt/hadoop/etc/hadoop/core-site.xml
-#    xpath: /configuration/property        
-#    value:
-#  become: yes
+- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
+  xml:
+    path: /opt/hadoop/etc/hadoop/core-site.xml
+    xpath: /configuration/property        
+    value:
+  become: yes
 
-#- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
-#  xml:
-#    path: /opt/hadoop/etc/hadoop/core-site.xml
-#    xpath: /configuration/property/name
-#    value: fs.defaultFS
-#  become: yes
+- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
+  xml:
+    path: /opt/hadoop/etc/hadoop/core-site.xml
+    xpath: /configuration/property/name
+    value: fs.defaultFS
+  become: yes
 
-#- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
-#  xml:
-#    path: /opt/hadoop/etc/hadoop/core-site.xml
-#    xpath: /configuration/property/value
-#    value: hdfs://central-machine:9000/
-#  become: yes
+- name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
+  xml:
+    path: /opt/hadoop/etc/hadoop/core-site.xml
+    xpath: /configuration/property/value
+    value: hdfs://central-machine:9000/
+  become: yes
 
-#- name: Creating the required folders for Hadoop ...
-#  command: "{{ item }}"
-#  args: 
-#    warn: False  
-#  with_items:
-#    - chown hadoop /opt/hadoop/ -R 
-#    - chgrp hadoop /opt/hadoop/ -R
-#    - mkdir /home/hadoop/datanode
-#    - chown hadoop /home/hadoop/datanode/
-#    - chgrp hadoop /home/hadoop/datanode/
-#  become: yes
+- name: Creating the required folders for Hadoop ...
+  command: "{{ item }}"
+  args: 
+    warn: False  
+  with_items:
+    - chown hadoop /opt/hadoop/ -R 
+    - chgrp hadoop /opt/hadoop/ -R
+    - mkdir /home/hadoop/datanode
+    - chown hadoop /home/hadoop/datanode/
+    - chgrp hadoop /home/hadoop/datanode/
+  become: yes
 
-#- name: changing the name of the old template of /opt/hadoop/etc/hadoop/hdfs-site.xml ... to .original
-#  command: cp /opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml.original
-#  become: yes
+- name: changing the name of the old template of /opt/hadoop/etc/hadoop/hdfs-site.xml ... to .original
+  command: cp /opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml.original
+  become: yes
 
-#- name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content ... 
-#  template:
-#    src: ../templates/template-hdfs-site-xml.j2
-#    dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
-#  become: yes
+- name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content ... 
+  template:
+    src: ../templates/template-hdfs-site-xml.j2
+    dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
+  become: yes
 
-#- name: Creating namenode folder in the master ...
-#  command: "{{ item }}"
+- name: Creating namenode folder in the master ...
+  command: "{{ item }}"
 
-#  args:
-#    warn: False
+  args:
+    warn: False
  
-#  with_items:
-#     - mkdir /home/hadoop/namenode
-#     - chown hadoop /home/hadoop/namenode/
-#     - chgrp hadoop /home/hadoop/namenode/
+  with_items:
+     - mkdir /home/hadoop/namenode
+     - chown hadoop /home/hadoop/namenode/
+     - chgrp hadoop /home/hadoop/namenode/
 
-#  when: inventory_hostname in groups['masters']
-#  become: yes
+  when: inventory_hostname in groups['masters']
+  become: yes
 
-#- name: Creating the file /opt/hadoop/etc/hadoop/mapred-site.xml, using template ..
+- name: Creating the file /opt/hadoop/etc/hadoop/mapred-site.xml, using template ..
 
-#  template:
-#    src: ../templates/template-mapred-site-xml.j2
-#    dest: /opt/hadoop/etc/hadoop/mapred-site.xml  
+  template:
+    src: ../templates/template-mapred-site-xml.j2
+    dest: /opt/hadoop/etc/hadoop/mapred-site.xml  
 
-#  when: inventory_hostname in groups['masters']
-#  become: yes
+  when: inventory_hostname in groups['masters']
+  become: yes
 
-#- name: Adding the names of the hosts of the slaves including the master ...
-#  lineinfile:
-#    path: /opt/hadoop/etc/hadoop/slaves
-#    line: "{{ item }}" 
+- name: Adding the names of the hosts of the slaves including the master ...
+  lineinfile:
+    path: /opt/hadoop/etc/hadoop/slaves
+    line: "{{ item }}" 
 
-#  become: yes
+  become: yes
 
-#  with_items:
-#    - central-machine 
-#    - node-minion-1
-#    - node-minion-2
-#    - node-minion-3
-#    - node-minion-4
-#    - node-minion-5
+  with_items:
+    - central-machine 
+    - node-minion-1
+    - node-minion-2
+    - node-minion-3
+    - node-minion-4
+    - node-minion-5
 
-#  when: inventory_hostname in groups['masters']
+  when: inventory_hostname in groups['masters']
 
  
 #- name: Modifying the file /etc/sysctl.conf  ...
@@ -167,15 +167,15 @@
 
 #  become: yes
 
-- name: Clearing HDFS logs, temporal files and old data on masters ...
-  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-masters.sh
-  when: inventory_hostname in groups['masters']
-  become: yes
+#- name: Clearing HDFS logs, temporal files and old data on masters ...
+#  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-masters.sh
+#  when: inventory_hostname in groups['masters']
+#  become: yes
 
-- name: Clearing HDFS logs, temporal files and old data on slaves ...
-  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-slaves.sh
-  when: inventory_hostname in groups['slaves']
-  become: yes  
+#- name: Clearing HDFS logs, temporal files and old data on slaves ...
+#  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-slaves.sh
+#  when: inventory_hostname in groups['slaves']
+#  become: yes  
 
 
   
