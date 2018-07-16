@@ -51,36 +51,36 @@
 
 - debug: var=ansible_default_ipv4.address
 
-- name: copying the spar-env template file
-  command: cp /usr/local/spark/conf/spark-env.sh.template /usr/local/spark/conf/spark-env.sh
-  become: yes  
+#- name: copying the spar-env template file
+#  command: cp /usr/local/spark/conf/spark-env.sh.template /usr/local/spark/conf/spark-env.sh
+#  become: yes  
 
-- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
-  lineinfile:
-    path: /usr/local/spark/conf/spark-env.sh
-    line: "{{ item }}"
+#- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
+#  lineinfile:
+#    path: /usr/local/spark/conf/spark-env.sh
+#    line: "{{ item }}"
 
-  with_items:
-    - export JAVA_HOME=/opt/jdk1.8.0_161
-    - "export SPARK_PUBLIC_DNS={{ ansible_default_ipv4.address  }}"
-    - export SPARK_WORKER_CORES=4   
-    - export PYSPARK_PYTHON=/bin/python3.6
-    - export PYSPARK_DRIVER_PYTHON=python3
-  when: inventory_hostname in groups['webservers']
-  become: yes 
+#  with_items:
+#    - export JAVA_HOME=/opt/jdk1.8.0_161
+#    - "export SPARK_PUBLIC_DNS={{ ansible_default_ipv4.address  }}"
+#    - export SPARK_WORKER_CORES=4   
+#    - export PYSPARK_PYTHON=/bin/python3.6
+#    - export PYSPARK_DRIVER_PYTHON=python3
+#  when: inventory_hostname in groups['webservers']
+#  become: yes 
 
-- name: Adding slaves hosts names to /usr/local/spark/conf/slaves ...
+#- name: Adding slaves hosts names to /usr/local/spark/conf/slaves ...
 
-  lineinfile:
-    path: /usr/local/spark/conf/slaves
-    line: "{{ item }}"
+#  lineinfile:
+#    path: /usr/local/spark/conf/slaves
+#    line: "{{ item }}"
 
-  with_items:
-    - central-machine
-    - node-minion-1
-    - node-minion-2
-    - node-minion-3
-    - node-minion-4
-    - node-minion-5
-  when: inventory_hostname in groups['masters']
-  become: yes
+#  with_items:
+#    - central-machine
+#    - node-minion-1
+#    - node-minion-2
+#    - node-minion-3
+#    - node-minion-4
+#    - node-minion-5
+#  when: inventory_hostname in groups['masters']
+#  become: yes

@@ -17,6 +17,12 @@
 
 # Ex 2: A collection of hosts belonging to the 'webservers' group
 
+[all:vars]
+ansible_ssh_private_key_file=/etc/ansible/keys/key-one.pem
+
+[test]
+192.168.0.74 ansible_python_interpreter=/usr/bin/python3
+
 [webservers]
 192.168.0.79 
 192.168.0.84 
