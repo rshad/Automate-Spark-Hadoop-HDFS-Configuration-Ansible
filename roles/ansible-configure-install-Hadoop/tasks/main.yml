@@ -1,19 +1,7 @@
-# first of all, we create hadoop user, so this user will be the one used to configure Hadoopa and HDFS
-#- name: creating hadoop user
-#  user:
-#    name: hadoop
-#    password: "{{ hadoop }}"
-#    state: present
-#    shell: /bin/bash    
-#    system: no
-#    createhome: yes
-#    home: /home/hadoop
-#  become: yes
 # -------------------------------- Installing Hadoop ------------------------------------------ #
 
 # Note:  We do not need to donwload the java package from internet, we have our own already downloaded.
 #- name: Extracting Hadoop package
-
 #  unarchive:
 #    src: "{{ hadoop_package_file }}"
 #    dest: "{{ download_folder }}"
@@ -26,17 +14,17 @@
 #  when: inventory_hostname in groups['masters']
 #  become: yes
 
-#- name: Copying hadoop/ folder to the slaves hosts ...
+#- name: Copying hadoop/ folder to the storage hosts ...
 #  synchronize:
 #    src: "{{ download_folder }}/{{ hadoop_folder_name_new }}"
 #    dest: "{{ download_folder }}/"
-#  when: inventory_hostname in groups['slaves']  
+#  when: inventory_hostname in groups['storage']  
 #  become: yes
 
 # Setting the required path for hadoop ...
-#- name: Writing Hadoop Path's into /home/hadoop/.bashrc ...
+#- name: "Writing Hadoop Path's into /home/{{ app_user }}/.bashrc ..."
 #  lineinfile:
-#    path: /home/hadoop/.bashrc
+#    path: "/home/{{ app_user }}/.bashrc"
 #    line: "{{ item }}"
 
 #  with_items:
@@ -55,7 +43,7 @@
 
 # Applying the changes
 #- name: applying the changes ...
-#  action: shell source /home/hadoop/.bashrc
+#  action: "shell source /home/{{ app_user }}/.bashrc"
 #  become: yes
 
 #- name: refreshing the terminal bash in order to refresh the environment variables
@@ -65,11 +53,16 @@
 # -------------------------------- Configuring Hadoop ------------------------------------------ #
 
 - name: Installing lxml python library ...
-  command: "{{ item }}"
+
+#  command: "{{ item }}"
   
-  with_items:
-    - pip3 install --upgrade pip
-    - pip3 install lxml
+#  with_items:
+#    - pip3 install --upgrade pip
+#    - pip3 install lxml
+  pip:
+    name: lxml
+    executable: /usr/local/bin/pip3
+
   become: yes
 
 - name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
@@ -77,6 +70,8 @@
     path: /opt/hadoop/etc/hadoop/core-site.xml
     xpath: /configuration/property        
     value:
+
+  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
@@ -84,13 +79,17 @@
     path: /opt/hadoop/etc/hadoop/core-site.xml
     xpath: /configuration/property/name
     value: fs.defaultFS
+  
+  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
   xml:
     path: /opt/hadoop/etc/hadoop/core-site.xml
     xpath: /configuration/property/value
-    value: hdfs://central-machine:9000/
+    value: hdfs://storage:9000/
+
+  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Creating the required folders for Hadoop ...
@@ -98,21 +97,27 @@
   args: 
     warn: False  
   with_items:
-    - chown hadoop /opt/hadoop/ -R 
-    - chgrp hadoop /opt/hadoop/ -R
-    - mkdir /home/hadoop/datanode
-    - chown hadoop /home/hadoop/datanode/
-    - chgrp hadoop /home/hadoop/datanode/
+    - "chown {{ app_user }}:{{ app_user }} /opt/hadoop/ -R" 
+    - "chgrp {{ app_user }} /opt/hadoop/ -R"
+    - "mkdir /home/{{ app_user }}/datanode"
+    - "chown {{ app_user }} /home/{{ app_user }}/datanode/"
+    - "chgrp {{ app_user }} /home/{{ app_user }}/datanode/"
+
+  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: changing the name of the old template of /opt/hadoop/etc/hadoop/hdfs-site.xml ... to .original
   command: cp /opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml.original
+  
+  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content ... 
   template:
     src: ../templates/template-hdfs-site-xml.j2
     dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
+
+  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Creating namenode folder in the master ...
@@ -122,9 +127,9 @@
     warn: False
  
   with_items:
-     - mkdir /home/hadoop/namenode
-     - chown hadoop /home/hadoop/namenode/
-     - chgrp hadoop /home/hadoop/namenode/
+     - "mkdir /home/{{ app_user }}/namenode"
+     - "chown {{ app_user }} /home/{{ app_user }}/namenode/"
+     - "chgrp {{ app_user }} /home/{{ app_user }}/namenode/"
 
   when: inventory_hostname in groups['masters']
   become: yes
@@ -145,39 +150,32 @@
 
   become: yes
 
-  with_items:
-    - central-machine 
-    - node-minion-1
-    - node-minion-2
-    - node-minion-3
-    - node-minion-4
-    - node-minion-5
+  with_items: 
+    - 192.168.3.150
+    - 10.10.2.3 
 
   when: inventory_hostname in groups['masters']
 
  
-#- name: Modifying the file /etc/sysctl.conf  ...
-#  lineinfile:
-#    path: /etc/sysctl.conf
-#    line: "{{ item }}"
+- name: Modifying the file /etc/sysctl.conf  ...
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: "{{ item }}"
 
-#  with_items:
-#    - net.ipv6.conf.all.disable_ipv6 = 1
-#    - net.ipv6.conf.default.disable_ipv6 = 1
+  with_items:
+    - net.ipv6.conf.all.disable_ipv6 = 1
+    - net.ipv6.conf.default.disable_ipv6 = 1
 
-#  become: yes
+  when: inventory_hostname in groups['masters','storage']
+  become: yes
 
-#- name: Clearing HDFS logs, temporal files and old data on masters ...
-#  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-masters.sh
-#  when: inventory_hostname in groups['masters']
-#  become: yes
+- name: Clearing HDFS logs, temporal files and old data on masters ...
+  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-masters.sh
+  when: inventory_hostname in groups['masters']
+  become: yes
 
-#- name: Clearing HDFS logs, temporal files and old data on slaves ...
-#  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-slaves.sh
-#  when: inventory_hostname in groups['slaves']
-#  become: yes  
-
-
-  
-  
+- name: Clearing HDFS logs, temporal files and old data on slaves ...
+  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-slaves.sh
+  when: inventory_hostname in groups['storage']
+  become: yes
 
