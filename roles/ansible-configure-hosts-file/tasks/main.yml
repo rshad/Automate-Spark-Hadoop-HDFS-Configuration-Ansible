@@ -10,10 +10,9 @@
 - stat: path="{{ remote_file_path }}"
   register: file_path
 
-# Write file content in file_content variable
-- set_fact: file_content="192.168.0.84 node-minion-1\n192.168.0.88 node-minion-2\n192.168.0.87 node-minion-3\n192.168.0.94 node-minion-4\n192.168.0.77 node-minion-5\n192.168.0.79 central-machine\n"
-  become: yes
-# If file exist then copy content in remote file.
-- copy: content="{{ file_content }}" dest="{{ remote_file_path }}"
-  when: file_path.stat.exists == true
+# Writing content
+- lineinfile:
+    path: "{{ remote_file_path }}"
+    line: "{{ item }}"
+  with_items: "{{ hosts }}"
   become: yes

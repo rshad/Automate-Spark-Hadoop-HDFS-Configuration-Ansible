@@ -1,0 +1,6 @@
+hosts:
+  - 192.168.3.150 storage
+  - 10.10.2.3 storage1
+  - 10.10.2.14 storage2
+
+key_file_path: /etc/ansible/keys/cluster-key.pem
