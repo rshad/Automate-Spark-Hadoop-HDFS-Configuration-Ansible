@@ -6,6 +6,12 @@
 #    - ansible-configure-firewall
 #    - ansible-disable-selinux
 #    - ansible-install-java
-    - ansible-configure-install-Hadoop
-#    - ansible-install-Spark
+
+- hosts: masters:storage
+  roles: 
+ #   - ansible-configure-install-Hadoop
+
+- hosts: masters:processing
+  roles:
+    - ansible-install-Spark
 #    - ansible-install-Scala

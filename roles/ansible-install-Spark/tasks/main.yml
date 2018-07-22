@@ -1,86 +1,86 @@
 # -------------------------------- Installing Spark ------------------------------------------ #
 
 # Note:  We do not need to donwload the spark package from internet, we have our own already downloaded.
-#- name: Extracting Spark package
 
-#  unarchive:
-#    src: "{{ spark_package_file }}"
-#    dest: "{{ download_folder }}"
-#  when: inventory_hostname in groups['webservers']
+- name: Extracting Spark package
 
-#  become: yes
+  unarchive:
+    src: "{{ spark_package_file }}"
+    dest: "{{ download_folder }}"
+
+  become: yes
 
 #- name: "Changing the spark folder name from {{ spark_folder_path_name_old }} to {{ download_folder }}/{{ spark_folder_name_new }}"
 
-#  command: "mv {{ spark_folder_path_name_old }} {{ download_folder }}/{{ spark_folder_name_new }}"
-#  when: inventory_hostname in groups['webservers']
-#  become: yes
+  command: "mv {{ spark_folder_path_name_old }} {{ download_folder }}/{{ spark_folder_name_new }}"
+  become: yes
+
 
 - name: adding Spark and Scala home ...
+
   lineinfile:
-    path: /root/.bashrc
+    path: "/home/{{ app_user }}/.bashrc"
     line: "{{ item }}"
 
   with_items:
+
     - export PATH=$PATH:/usr/local/spark/bin/
     - export PATH=$PATH:/usr/local/scala/bin/
     - export SPARK_HOME=/usr/local/spark/
-  
+
   become: yes
 
-  when: inventory_hostname in groups['webservers']
-   
-- name: source .bashrc in order to apply the changes
-  action: shell source /root/.bashrc
+
+- name: applying changes in .bashrc ...
+  action: "shell source /home/{{ app_user }}/.bashrc"
   become: yes
 
 - name: refreshing the terminal bash in order to refresh the environment variables
+
   shell: bash
   become: yes  
 
 - name: detecting the changes ...
+
   command: echo $SPARK_HOME
   register: spark_home
 
-  when: inventory_hostname in groups['webservers']
 
 - debug: msg="SPARK_HOME value -> {{ spark_home.stdout }}"
 - debug: msg="Error Output -> {{ spark_home.stderr }}"
-
 - debug: var=ansible_all_ipv4_addresses
-
 - debug: var=ansible_default_ipv4.address
 
-#- name: copying the spar-env template file
-#  command: cp /usr/local/spark/conf/spark-env.sh.template /usr/local/spark/conf/spark-env.sh
-#  become: yes  
 
-#- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
-#  lineinfile:
-#    path: /usr/local/spark/conf/spark-env.sh
-#    line: "{{ item }}"
+- name: copying the spar-env template file
+  command: "{{ item }}"
 
-#  with_items:
-#    - export JAVA_HOME=/opt/jdk1.8.0_161
-#    - "export SPARK_PUBLIC_DNS={{ ansible_default_ipv4.address  }}"
-#    - export SPARK_WORKER_CORES=4   
-#    - export PYSPARK_PYTHON=/bin/python3.6
-#    - export PYSPARK_DRIVER_PYTHON=python3
-#  when: inventory_hostname in groups['webservers']
-#  become: yes 
+  with_items:
+    - cp /usr/local/spark/conf/spark-env.sh.template /usr/local/spark/conf/spark-env.sh
+    - cp /usr/local/spark/conf/slaves.template /usr/local/spark/conf/slaves
+  become: yes
 
-#- name: Adding slaves hosts names to /usr/local/spark/conf/slaves ...
+- name: adding Java Home and SPARK Workers Cores and SPARK public DNS
+  lineinfile:
+    path: /usr/local/spark/conf/spark-env.sh
+    line: "{{ item }}"
 
-#  lineinfile:
-#    path: /usr/local/spark/conf/slaves
-#    line: "{{ item }}"
+  with_items:
+    - export JAVA_HOME=/opt/jdk1.8.0_161
+    - "export SPARK_PUBLIC_DNS={{ ansible_default_ipv4.address  }}"
+    - export SPARK_WORKER_CORES=4
+    - export PYSPARK_PYTHON=/bin/python3.6
+    - export PYSPARK_DRIVER_PYTHON=python3
 
-#  with_items:
-#    - central-machine
-#    - node-minion-1
-#    - node-minion-2
-#    - node-minion-3
-#    - node-minion-4
-#    - node-minion-5
-#  when: inventory_hostname in groups['masters']
-#  become: yes
+  become: yes
+
+- name: Adding slaves hosts names to /usr/local/spark/conf/slaves ...
+
+  lineinfile:
+    path: /usr/local/spark/conf/slaves
+    line: "{{ item }}"
+
+  with_items: "{{ hosts }}"
+  when: inventory_hostname in groups['masters']
+  become: yes
+

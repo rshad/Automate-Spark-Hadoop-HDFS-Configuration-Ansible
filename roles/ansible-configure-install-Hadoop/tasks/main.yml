@@ -1,64 +1,59 @@
 # -------------------------------- Installing Hadoop ------------------------------------------ #
 
 # Note:  We do not need to donwload the java package from internet, we have our own already downloaded.
-#- name: Extracting Hadoop package
-#  unarchive:
-#    src: "{{ hadoop_package_file }}"
-#    dest: "{{ download_folder }}"
-#  when: inventory_hostname in groups['masters']
-#  become: yes
+- name: Extracting Hadoop package
+  unarchive:
+    src: "{{ hadoop_package_file }}"
+    dest: "{{ download_folder }}"
+  when: inventory_hostname in groups['masters']
+  become: yes
   
-#- name: "Changing the hadoop folder name from {{ hadoop_folder_path_name_old }} to {{ download_folder }}/{{ hadoop_folder_name_new }}"
+- name: "Changing the hadoop folder name from {{ hadoop_folder_path_name_old }} to {{ download_folder }}/{{ hadoop_folder_name_new }}"
 
-#  command: "mv {{ hadoop_folder_path_name_old }}  {{ download_folder }}/{{ hadoop_folder_name_new }}"
-#  when: inventory_hostname in groups['masters']
-#  become: yes
+  command: "mv {{ hadoop_folder_path_name_old }}  {{ download_folder }}/{{ hadoop_folder_name_new }}"
+  when: inventory_hostname in groups['masters']
+  become: yes
 
-#- name: Copying hadoop/ folder to the storage hosts ...
-#  synchronize:
-#    src: "{{ download_folder }}/{{ hadoop_folder_name_new }}"
-#    dest: "{{ download_folder }}/"
-#  when: inventory_hostname in groups['storage']  
-#  become: yes
+- name: Copying hadoop/ folder to the storage hosts ...
+  synchronize:
+    src: "{{ download_folder }}/{{ hadoop_folder_name_new }}"
+    dest: "{{ download_folder }}/"
+  when: inventory_hostname in groups['storage']  
+  become: yes
 
 # Setting the required path for hadoop ...
-#- name: "Writing Hadoop Path's into /home/{{ app_user }}/.bashrc ..."
-#  lineinfile:
-#    path: "/home/{{ app_user }}/.bashrc"
-#    line: "{{ item }}"
+- name: "Writing Hadoop Path's into /home/{{ app_user }}/.bashrc ..."
+  lineinfile:
+    path: "/home/{{ app_user }}/.bashrc"
+    line: "{{ item }}"
 
-#  with_items:
-#    - export JAVA_HOME=/opt/jdk1.8.0_161
-#    - export JRE_HOME=/opt/jdk1.8.0_161/jre 
-#    - export HADOOP_PREFIX=/opt/hadoop
-#    - export HADOOP_HOME=$HADOOP_PREFIX
-#    - export HADOOP_COMMON_HOME=$HADOOP_PREFIX
-#    - export HADOOP_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
-#    - export HADOOP_HDFS_HOME=$HADOOP_PREFIX
-#    - export HADOOP_MAPRED_HOME=$HADOOP_PREFIX
-#    - export HADOOP_YARN_HOME=$HADOOP_PREFIX
-#    - export PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin:$HADOOP_PREFIX/sbin:$HADOOP_PREFIX/bin
+  with_items:
+    - export JAVA_HOME=/opt/jdk1.8.0_161
+    - export JRE_HOME=/opt/jdk1.8.0_161/jre 
+    - export HADOOP_PREFIX=/opt/hadoop
+    - export HADOOP_HOME=$HADOOP_PREFIX
+    - export HADOOP_COMMON_HOME=$HADOOP_PREFIX
+    - export HADOOP_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
+    - export HADOOP_HDFS_HOME=$HADOOP_PREFIX
+    - export HADOOP_MAPRED_HOME=$HADOOP_PREFIX
+    - export HADOOP_YARN_HOME=$HADOOP_PREFIX
+    - export PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin:$HADOOP_PREFIX/sbin:$HADOOP_PREFIX/bin
 
-#  become: yes
+  become: yes
 
 # Applying the changes
-#- name: applying the changes ...
-#  action: "shell source /home/{{ app_user }}/.bashrc"
-#  become: yes
+- name: applying the changes ...
+  action: "shell source /home/{{ app_user }}/.bashrc"
+  become: yes
 
 #- name: refreshing the terminal bash in order to refresh the environment variables
-#  shell: bash
-#  become: yes  
+  shell: bash
+  become: yes  
 
 # -------------------------------- Configuring Hadoop ------------------------------------------ #
 
-- name: Installing lxml python library ...
+- name: Installing lxml python library ...  
 
-#  command: "{{ item }}"
-  
-#  with_items:
-#    - pip3 install --upgrade pip
-#    - pip3 install lxml
   pip:
     name: lxml
     executable: /usr/local/bin/pip3
@@ -71,7 +66,6 @@
     xpath: /configuration/property        
     value:
 
-  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
@@ -80,7 +74,6 @@
     xpath: /configuration/property/name
     value: fs.defaultFS
   
-  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
@@ -89,13 +82,15 @@
     xpath: /configuration/property/value
     value: hdfs://storage:9000/
 
-  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Creating the required folders for Hadoop ...
+
   command: "{{ item }}"
+
   args: 
     warn: False  
+
   with_items:
     - "chown {{ app_user }}:{{ app_user }} /opt/hadoop/ -R" 
     - "chgrp {{ app_user }} /opt/hadoop/ -R"
@@ -103,21 +98,19 @@
     - "chown {{ app_user }} /home/{{ app_user }}/datanode/"
     - "chgrp {{ app_user }} /home/{{ app_user }}/datanode/"
 
-  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: changing the name of the old template of /opt/hadoop/etc/hadoop/hdfs-site.xml ... to .original
   command: cp /opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml.original
   
-  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content ... 
+
   template:
     src: ../templates/template-hdfs-site-xml.j2
     dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
 
-  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Creating namenode folder in the master ...
@@ -166,7 +159,6 @@
     - net.ipv6.conf.all.disable_ipv6 = 1
     - net.ipv6.conf.default.disable_ipv6 = 1
 
-  when: inventory_hostname in groups['masters','storage']
   become: yes
 
 - name: Clearing HDFS logs, temporal files and old data on masters ...
