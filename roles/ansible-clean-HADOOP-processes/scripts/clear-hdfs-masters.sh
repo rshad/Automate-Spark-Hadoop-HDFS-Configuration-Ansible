@@ -13,4 +13,6 @@ echo "Deleting HDFS and YARN processes ... "
 for pid in $(ps -fe | grep '[p]rocess' | grep -v grep | awk '{print $2}'); do
     echo "Killing $pid ..."
     kill "$pid"
+    echo "Sleeping 10 seconds"
+    sleep 10
 done

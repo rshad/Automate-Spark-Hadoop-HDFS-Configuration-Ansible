@@ -160,14 +160,3 @@
     - net.ipv6.conf.default.disable_ipv6 = 1
 
   become: yes
-
-- name: Clearing HDFS logs, temporal files and old data on masters ...
-  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-masters.sh
-  when: inventory_hostname in groups['masters']
-  become: yes
-
-- name: Clearing HDFS logs, temporal files and old data on slaves ...
-  script: /etc/ansible/roles/ansible-configure-install-Hadoop/scripts/clear-hdfs-slaves.sh
-  when: inventory_hostname in groups['storage']
-  become: yes
-

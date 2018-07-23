@@ -1,10 +1,3 @@
-# password of the user hadoop
-# this password was generated, using the following sentece:
-# python -c "from passlib.hash import sha512_crypt;
-#            import getpass;
-#             
-#            print(sha512_crypt.using(rounds=5000).hash(getpass.getpass()))"
-hadoop: $6$32kWFxU21rSuBfz5$eSAi2zLEMVoVvLTt5gNP9ZVD8KJZ000f/eH/zTxclGMp.sO7zKfL/3A3PCoVQ6AXSMCYX.qMBlwj39ITnop6c1
 
 # variables for the task " Extracting Hadoop package 
 download_folder: /opt/
@@ -19,7 +12,7 @@ value_property_1: 3
 name_property_2: dfs.permissions
 value_property_2: false
 name_property_3: dfs.datanode.data.dir
-value_property_3: /home/hadoop/datanode
+value_property_3: "/home/{{ app_user }}/datanode
 
 
 # variables for /opt/hadoop/etc/hadoop/mapred-site.xml

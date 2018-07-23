@@ -1,0 +1,5 @@
+- name: Set authorized key took from file
+  authorized_key:
+    user: fedora
+    state: present
+    key: "{{ lookup('file', '/home/fedora/.ssh/id_rsa.pub') }}"

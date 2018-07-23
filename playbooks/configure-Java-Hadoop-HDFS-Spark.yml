@@ -10,8 +10,13 @@
 - hosts: masters:storage
   roles: 
     - ansible-configure-install-Hadoop
+    - ansible-clean-HADOOP-processes
 
 - hosts: masters:processing
   roles:
     - ansible-install-Spark
     - ansible-install-Scala
+
+- hosts: ssh-authority
+  roles:
+    - ansible-authorized-keys 
