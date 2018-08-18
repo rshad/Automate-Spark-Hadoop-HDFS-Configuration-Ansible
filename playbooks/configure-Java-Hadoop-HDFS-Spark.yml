@@ -1,22 +1,22 @@
 ---
-- hosts: webservers
+- hosts: ssh-authority
   become: yes
   roles:
-    - ansible-configure-hosts-file
-    - ansible-configure-firewall
-    - ansible-disable-selinux
-    - ansible-install-java
+    - ansible-authorized-keys
+#- hosts: webservers
+#  become: yes
+#  roles:
+#    - ansible-configure-hosts-file
+#    - ansible-configure-firewall
+#    - ansible-disable-selinux
+#    - ansible-install-java
 
-- hosts: masters:storage
-  roles: 
-    - ansible-configure-install-Hadoop
-    - ansible-clean-HADOOP-processes
+#- hosts: masters:storage
+#  roles: 
+#    - ansible-configure-install-Hadoop
+#    - ansible-clean-HADOOP-processes
 
-- hosts: masters:processing
-  roles:
-    - ansible-install-Spark
-    - ansible-install-Scala
-
-- hosts: ssh-authority
-  roles:
-    - ansible-authorized-keys 
+#- hosts: masters:processing
+#  roles:
+#    - ansible-install-Spark
+#    - ansible-install-Scala
