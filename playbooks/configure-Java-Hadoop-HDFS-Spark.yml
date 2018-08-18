@@ -1,14 +1,15 @@
 ---
-- hosts: ssh-authority
-  become: yes
-  roles:
-    - ansible-authorized-keys
-#- hosts: webservers
+#- hosts: ssh-authority
 #  become: yes
 #  roles:
+#    - ansible-authorized-keys
+
+- hosts: webservers
+  become: yes
+  roles:
 #    - ansible-configure-hosts-file
 #    - ansible-configure-firewall
-#    - ansible-disable-selinux
+    - ansible-disable-selinux
 #    - ansible-install-java
 
 #- hosts: masters:storage

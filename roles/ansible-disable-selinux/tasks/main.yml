@@ -13,10 +13,20 @@
 - name: Disable SELinux at next reboot
   selinux:
     state: disabled
+  register: selinux_was_not_disabled
   become: yes
 
+- name: Register selinux_was_not_disabled variable
+  
+  set_fact:
+    code_changed: selinux_was_not_disabled.changed
+
 - name: Set SELinux in permissive mode until the machine is rebooted
+  
   command: setenforce 0
   ignore_errors: true
   changed_when: false
+
+  when: code_changed
   become: yes
+
