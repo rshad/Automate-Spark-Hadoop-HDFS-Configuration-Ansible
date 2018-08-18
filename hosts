@@ -18,35 +18,34 @@
 # Ex 2: A collection of hosts belonging to the 'webservers' group
 
 [all:vars]
-ansible_ssh_private_key_file=/etc/ansible/keys/cluster-key.pem
+ansible_ssh_private_key_file=/etc/ansible/keys/key-one.pem
 ansible_python_interpreter=/usr/bin/python3
 
 [webservers]
-192.168.3.150
-10.10.2.3
-10.10.2.14
+192.168.0.94
+192.168.0.74
+192.168.0.84
 
 [masters]
-192.168.3.150
+192.168.0.94
 
 [slaves]
-10.10.2.3
-10.10.2.14
+192.168.0.74
+192.168.0.84
 
 [storage]
-10.10.2.3
+192.168.0.74
+192.168.0.84
 
 [processing]
-10.10.2.14
+192.168.0.74
+192.168.0.84
 
 [ssh-authority]
-192.168.3.150
-10.10.2.3
-10.10.2.14
-127.0.0.1
-0.0.0.0
+192.168.0.94
+192.168.0.74
+192.168.0.84
 localhost
-
 
 ## alpha.example.org
 ## beta.example.org

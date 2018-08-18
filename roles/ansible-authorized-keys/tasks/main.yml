@@ -1,3 +1,10 @@
+- name: Create a 2048-bit SSH key for user jsmith in ~/fedora/.ssh/id_rsa
+  user:
+    name: fedora
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+
 - name: Set authorized key took from file
   authorized_key:
     user: fedora
