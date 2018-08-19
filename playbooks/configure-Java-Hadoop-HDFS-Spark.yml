@@ -4,18 +4,19 @@
 #  roles:
 #    - ansible-authorized-keys
 
-- hosts: webservers
-  become: yes
-  roles:
+#- hosts: webservers
+#  become: yes
+#  roles:
 #    - ansible-configure-hosts-file
 #    - ansible-configure-firewall
 #    - ansible-disable-selinux
-    - ansible-install-java
+#    - ansible-install-java
 
-#- hosts: masters:storage
-#  roles: 
+- hosts: masters:slaves:storage
+  become: yes        
+  roles:
 #    - ansible-configure-install-Hadoop
-#    - ansible-clean-HADOOP-processes
+    - ansible-clean-HADOOP-processes
 
 #- hosts: masters:processing
 #  roles:

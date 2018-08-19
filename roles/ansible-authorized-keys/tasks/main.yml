@@ -1,12 +1,36 @@
+
+- name: deleting old versions of /opt/hadoop
+
+  file:
+    state: absent
+    path: "{{ item }}"
+
+  with_items:
+    - /home/fedora/.ssh/id_rsa
+    - /home/fedora/.ssh/id_rsa.pub 
+
 - name: Create a 2048-bit SSH key for user jsmith in ~/fedora/.ssh/id_rsa
   user:
     name: fedora
     generate_ssh_key: yes
     ssh_key_bits: 2048
-    ssh_key_file: .ssh/id_rsa
+    ssh_key_file: /home/fedora/.ssh/id_rsa
 
 - name: Set authorized key took from file
   authorized_key:
     user: fedora
     state: present
-    key: "{{ lookup('file', '/home/fedora/.ssh/id_rsa.pub') }}"
+    key: "{{ lookup('file', '/home/{{ app_user }}/.ssh/id_rsa.pub') }}"
+
+- name: Slurp hosts file
+  slurp:
+    src: /home/fedora/.ssh/id_rsa.pub
+  register: slurpfile
+
+- name: ...
+  lineinfile:
+    path: "/home/fedora/.ssh/authorized_keys"
+    line: "{{ slurpfile['content'] | b64decode }}"
+
+- debug: msg="{{ slurpfile['content'] | b64decode }}"
+

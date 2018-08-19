@@ -1,0 +1,1 @@
+pub_key: "{{ lookup('file', '/home/fedora/.ssh/id_rsa.pub') }}"

@@ -3,6 +3,9 @@ hosts:
   - 192.168.0.74 slave-1
   - 192.168.0.84 slave-2
 
+masters:
+  - 192.168.0.94 master
+
 storage-nodes:
   - 192.168.0.74 slave-1
   - 192.168.0.84 slave-2

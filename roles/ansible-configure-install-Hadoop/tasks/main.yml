@@ -6,20 +6,24 @@
     src: "{{ hadoop_package_file }}"
     dest: "{{ download_folder }}"
   when: inventory_hostname in groups['masters']
-  become: yes
   
+
+- name: deleting old versions of /opt/hadoop
+
+  file:
+    state: absent
+    path: /opt/hadoop
+
 - name: "Changing the hadoop folder name from {{ hadoop_folder_path_name_old }} to {{ download_folder }}/{{ hadoop_folder_name_new }}"
 
   command: "mv {{ hadoop_folder_path_name_old }}  {{ download_folder }}/{{ hadoop_folder_name_new }}"
   when: inventory_hostname in groups['masters']
-  become: yes
 
 - name: Copying hadoop/ folder to the storage hosts ...
   synchronize:
     src: "{{ download_folder }}/{{ hadoop_folder_name_new }}"
     dest: "{{ download_folder }}/"
   when: inventory_hostname in groups['storage']  
-  become: yes
 
 # Setting the required path for hadoop ...
 - name: "Writing Hadoop Path's into /home/{{ app_user }}/.bashrc ..."
@@ -39,26 +43,25 @@
     - export HADOOP_YARN_HOME=$HADOOP_PREFIX
     - export PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin:$HADOOP_PREFIX/sbin:$HADOOP_PREFIX/bin
 
-  become: yes
 
 # Applying the changes
 - name: applying the changes ...
   action: "shell source /home/{{ app_user }}/.bashrc"
-  become: yes
 
-#- name: refreshing the terminal bash in order to refresh the environment variables
+- name: refreshing the terminal bash in order to refresh the environment variables
   shell: bash
-  become: yes  
 
 # -------------------------------- Configuring Hadoop ------------------------------------------ #
 
-- name: Installing lxml python library ...  
-
-  pip:
-    name: lxml
-    executable: /usr/local/bin/pip3
-
-  become: yes
+- name: installing pip
+  easy_install:
+    name: pip
+    state: latest
+ 
+#- name: Installing lxml python library ...
+#  pip:
+#    name: lxml
+#    executable: pip3
 
 - name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
   xml:
@@ -66,7 +69,6 @@
     xpath: /configuration/property        
     value:
 
-  become: yes
 
 - name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
   xml:
@@ -74,17 +76,47 @@
     xpath: /configuration/property/name
     value: fs.defaultFS
   
-  become: yes
 
 - name: Modifying the file /opt/hadoop/etc/hadoop/core-site.xml  ...
   xml:
     path: /opt/hadoop/etc/hadoop/core-site.xml
     xpath: /configuration/property/value
-    value: hdfs://storage:9000/
+    value: hdfs://master:9000/
 
-  become: yes
 
-- name: Creating the required folders for Hadoop ...
+- name: creating /tmp/spark-events in case it does not exists
+
+  file:
+    path: /tmp/spark-events
+    state: directory
+
+- name: changing ownership for /tmp/spark-events directory
+
+  command: "{{ item }}"
+
+  args:
+    warn: False
+  
+  with_items:
+    - "chown {{ app_user }}:{{ app_user }} /tmp/spark-events -R"
+    - "chgrp {{ app_user }} /tmp/spark-events -R"
+
+
+- name: "create the folder /home/{{ app_user }}/datanode if it does not exists"
+  
+  file:
+    path: "/home/{{ app_user }}/datanode"
+    state: directory
+
+- name: "create the folder /home/{{ app_user }}/namenode if it does not exists"
+
+  file:
+    path: "/home/{{ app_user }}/namenode"
+    state: directory 
+
+  when: inventory_hostname in groups['masters']
+    
+- name: changing ownership for datanode and namenode folders
 
   command: "{{ item }}"
 
@@ -94,38 +126,44 @@
   with_items:
     - "chown {{ app_user }}:{{ app_user }} /opt/hadoop/ -R" 
     - "chgrp {{ app_user }} /opt/hadoop/ -R"
-    - "mkdir /home/{{ app_user }}/datanode"
     - "chown {{ app_user }} /home/{{ app_user }}/datanode/"
     - "chgrp {{ app_user }} /home/{{ app_user }}/datanode/"
 
-  become: yes
+- name: changing ownership for datanode and namenode folders
 
-- name: changing the name of the old template of /opt/hadoop/etc/hadoop/hdfs-site.xml ... to .original
-  command: cp /opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml.original
-  
-  become: yes
-
-- name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content ... 
-
-  template:
-    src: ../templates/template-hdfs-site-xml.j2
-    dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
-
-  become: yes
-
-- name: Creating namenode folder in the master ...
   command: "{{ item }}"
 
   args:
     warn: False
- 
+
   with_items:
-     - "mkdir /home/{{ app_user }}/namenode"
-     - "chown {{ app_user }} /home/{{ app_user }}/namenode/"
-     - "chgrp {{ app_user }} /home/{{ app_user }}/namenode/"
+    - "chown {{ app_user }} /home/{{ app_user }}/namenode/"
+    - "chgrp {{ app_user }} /home/{{ app_user }}/namenode/"
 
   when: inventory_hostname in groups['masters']
-  become: yes
+
+- name: changing the name of the old template of /opt/hadoop/etc/hadoop/hdfs-site.xml ... to .original
+  command: cp /opt/hadoop/etc/hadoop/hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml.original
+  
+
+
+- name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content - MASTER... 
+
+  template:
+    src: ../templates/template-hdfs-site-masters-xml.j2
+    dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
+
+  when: inventory_hostname in groups['masters']
+
+
+- name: adding  /opt/hadoop/etc/hadoop/hdfs-site.xml with new content - SLAVES ...
+
+  template:
+    src: ../templates/template-hdfs-site-slaves-xml.j2
+    dest: /opt/hadoop/etc/hadoop/hdfs-site.xml
+
+  when: inventory_hostname in groups['slaves']
+
 
 - name: Creating the file /opt/hadoop/etc/hadoop/mapred-site.xml, using template ..
 
@@ -134,7 +172,14 @@
     dest: /opt/hadoop/etc/hadoop/mapred-site.xml  
 
   when: inventory_hostname in groups['masters']
-  become: yes
+
+
+- name: Creating the file /opt/hadoop/etc/hadoop/yarn-site.xml, using template ..
+
+  template:
+    src: ../templates/template-yarn-site-xml.j2
+    dest: /opt/hadoop/etc/hadoop/yarn-site.xml
+
 
 - name: Adding the names of the hosts of the slaves including the master ...
   lineinfile:
@@ -142,10 +187,7 @@
     line: "{{ item }}" 
 
   become: yes
-
-  with_items: 
-    - 192.168.3.150
-    - 10.10.2.3 
+  with_items: "{{ hosts }}"
 
   when: inventory_hostname in groups['masters']
 

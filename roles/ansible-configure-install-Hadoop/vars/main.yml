@@ -1,6 +1,6 @@
 
 # variables for the task " Extracting Hadoop package 
-download_folder: /opt/
+download_folder: /opt
 hadoop_package_file: /opt/required-packages/hadoop-2.6.5.tar.gz
 hadoop_folder_path_name_old: /opt/hadoop-2.6.5
 hadoop_folder_name_new: hadoop
@@ -12,8 +12,9 @@ value_property_1: 3
 name_property_2: dfs.permissions
 value_property_2: false
 name_property_3: dfs.datanode.data.dir
-value_property_3: "/home/{{ app_user }}/datanode
-
+value_property_3: "/home/{{ app_user }}/datanode"
+name_property_4: dfs.namenode.data.dir
+value_property_4: "/home/{{ app_user }}/namenode"
 
 # variables for /opt/hadoop/etc/hadoop/mapred-site.xml
 mapred_site_xml_name_property_1: mapreduce.framework.name
