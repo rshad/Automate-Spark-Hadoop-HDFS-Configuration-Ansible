@@ -10,7 +10,7 @@
   become: yes
 
 - name: Fix ownership
-  file: state=directory path={{ to_create_folder }} owner=root group=root recurse=yes
+  file: state=directory path={{ to_create_folder }} owner=fedora group=fedora recurse=yes
   become: yes
 
 # Configuring the Java version 
@@ -66,3 +66,4 @@
 
 - debug: msg="Error Output -> {{ java_home.stderr }}"
   become: yes    
+

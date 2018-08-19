@@ -9,8 +9,8 @@
   roles:
 #    - ansible-configure-hosts-file
 #    - ansible-configure-firewall
-    - ansible-disable-selinux
-#    - ansible-install-java
+#    - ansible-disable-selinux
+    - ansible-install-java
 
 #- hosts: masters:storage
 #  roles: 

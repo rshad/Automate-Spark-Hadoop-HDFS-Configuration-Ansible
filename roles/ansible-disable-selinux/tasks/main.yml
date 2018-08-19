@@ -13,11 +13,13 @@
 - name: Disable SELinux at next reboot
   selinux:
     state: disabled
+
+  # register the state of the task if it produce a change or not
   register: selinux_was_not_disabled
   become: yes
 
 - name: Register selinux_was_not_disabled variable
-  
+
   set_fact:
     code_changed: selinux_was_not_disabled.changed
 
@@ -26,7 +28,8 @@
   command: setenforce 0
   ignore_errors: true
   changed_when: false
-
+  
+  # run this task when selinux_was_not_disabled.changed produces a change captured in the previous task
   when: code_changed
   become: yes
 
