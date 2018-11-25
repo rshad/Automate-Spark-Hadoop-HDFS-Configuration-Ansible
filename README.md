@@ -20,4 +20,6 @@ This project was devloped by me " Rshad Zhran " under the supervision of my tuto
 5. [References](#References)
 
 ## 1. Introduction
-First of all, in order to start implementing a Cloud Computing Platfrom we need an Architecture Orchestrator and 
+First of all, in order to start implementing a Cloud Computing Platfrom we need an Architecture Orchestrator, in this case I use [OpenStack](https://www.openstack.org/).
+
+
